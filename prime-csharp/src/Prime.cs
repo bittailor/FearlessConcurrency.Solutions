@@ -15,22 +15,34 @@ public static class Prime {
     public static uint CountPrimes(uint upTo, uint numberOfThreads) {
         List<Thread> threads = new();
         uint numberOfPrimeNumbers = 0;
+        object numberOfPrimeNumbersLock = new();
         uint currentNumber = 2;
+        object currentNumberLock = new();
         for (uint t = 0; t < numberOfThreads; t++) {
             var thread = new Thread(() => {
                 while(true){
-                    var localCurrentNumber = currentNumber++; 
+                    uint localCurrentNumber;
+                    lock (currentNumberLock) {
+                        localCurrentNumber = currentNumber++;
+                    }  
                     if(localCurrentNumber >= upTo) {
                         break;
                     }
-                    if (IsPrime(localCurrentNumber)) ++numberOfPrimeNumbers;    
+                    if (IsPrime(localCurrentNumber)) {
+                        lock (numberOfPrimeNumbersLock) {
+                            ++numberOfPrimeNumbers;
+                        }  
+                    }   
                 }
             });    
             threads.Add(thread);
             thread.Start();
         }
         threads.ForEach(t => t.Join());
-        return numberOfPrimeNumbers;
+
+        lock (numberOfPrimeNumbersLock) {
+            return numberOfPrimeNumbers;
+        }
     }
 
 }

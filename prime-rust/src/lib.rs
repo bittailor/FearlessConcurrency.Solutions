@@ -8,25 +8,31 @@ pub fn is_prime(n: u32) -> bool {
 }
 
 pub fn count_primes(up_to: u32, number_of_threads: usize) -> u32 {
-    let mut number_of_prime_numbers = 0;
-    let mut current_number = 2;
+    let number_of_prime_numbers = std::sync::Mutex::new(0u32);
+    let current_number = std::sync::Mutex::new(2u32);
 
     std::thread::scope(|scope| {
         for _t in 0..number_of_threads {
             scope.spawn(|| loop {
-                let local_current_number = current_number;
-                current_number += 1;
+                let local_current_number = {
+                    let mut current_number = current_number.lock().unwrap();
+                    let local_current_number = *current_number;
+                    *current_number += 1;
+                    local_current_number
+                };
                 if local_current_number >= up_to {
                     break;
                 }
                 if is_prime(local_current_number) {
-                    number_of_prime_numbers = number_of_prime_numbers + 1;
+                    let mut number_of_prime_numbers = number_of_prime_numbers.lock().unwrap();
+                    *number_of_prime_numbers = *number_of_prime_numbers + 1;
                 }
             });
         }
     });
 
-    number_of_prime_numbers
+    let result = *number_of_prime_numbers.lock().unwrap();
+    result
 }
 
 #[cfg(test)]

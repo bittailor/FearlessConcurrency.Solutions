@@ -13,18 +13,27 @@ fun isPrime(n: UInt): Boolean {
 }
 
 fun countPrimes(upTo: UInt, numberOfThreads: UInt): UInt {
-    var threads = mutableListOf<Thread>();
-    var numberOfPrimeNumbers = 0u;
-    var currentNumber = 2u;
+    var threads = mutableListOf<Thread>()
+    var numberOfPrimeNumbers = 0u
+    val numberOfPrimeNumbersLock = Any()
+    var currentNumber = 2u
+    val currentNumberLock = Any()
 
     for (t in 0u..<numberOfThreads) {
         threads.add(thread {
             while(true){
-                val localCurrentNumber = currentNumber++; 
+                var localCurrentNumber : UInt
+                synchronized(currentNumberLock) {
+                    localCurrentNumber = currentNumber++    
+                }
                 if(localCurrentNumber >= upTo) {
                     break;
                 }
-                if (isPrime(localCurrentNumber)) ++numberOfPrimeNumbers;    
+                if (isPrime(localCurrentNumber)) {
+                    synchronized(numberOfPrimeNumbersLock) {
+                        ++numberOfPrimeNumbers
+                    }
+                }    
             }
         });   
     }    
@@ -33,5 +42,7 @@ fun countPrimes(upTo: UInt, numberOfThreads: UInt): UInt {
         t.join();
     }
 
-    return numberOfPrimeNumbers
+    synchronized(numberOfPrimeNumbersLock) {
+        return numberOfPrimeNumbers
+    }
 }
