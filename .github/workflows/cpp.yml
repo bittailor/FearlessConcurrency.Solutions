@@ -1,4 +1,4 @@
-name: cpp
+name: C++
 
 on:
   push:
