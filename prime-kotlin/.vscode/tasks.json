@@ -1,0 +1,37 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"command": "./gradlew app:jar app:testClasses ",
+			"problemMatcher": [
+				"$gradle"
+			],
+			"label": "build",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"presentation": {
+				"clear": true
+			}
+
+		},
+		{
+			"type": "shell",
+			"command": "./gradlew build",
+			"problemMatcher": [
+				"$gradle"
+			],
+			"label": "test",
+			"group": {
+				"kind": "test",
+				"isDefault": true
+			},
+			"presentation": {
+				"clear": true
+			}
+
+		}
+	]
+}
