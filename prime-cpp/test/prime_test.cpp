@@ -28,7 +28,7 @@ TEST(CountPrimes, Four_Thread) {
 }
 
 TEST(CountPrimes, Max_Thread) {
-  auto max_threads = std::thread::hardware_concurrency();
-  std::cout << "Max threads is " << max_threads << std::endl;
-  EXPECT_EQ(PRIMES, count_primes(UP_TO, max_threads));
+  auto maxThreads = std::thread::hardware_concurrency();
+  std::cout << "max threads is " << maxThreads << std::endl;
+  EXPECT_EQ(PRIMES, count_primes(UP_TO, maxThreads));
 }

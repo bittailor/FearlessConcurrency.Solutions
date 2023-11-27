@@ -1,7 +1,7 @@
-use prime_rust::count_prime;
+use prime_rust::count_primes;
 
 fn main() {
-    const MAX: u32 = 200000;
+    const UP_TO: u32 = 200000;
 
     let mut number_of_threads = 1;
 
@@ -10,7 +10,7 @@ fn main() {
         number_of_threads = args[1].parse().expect("parameter must be a number");
     }
 
-    println!("Run with {number_of_threads} threads up to {MAX}");
-    let count = count_prime(MAX, number_of_threads);
-    println!("Found {} prime numbers up to {}", count, MAX);
+    println!("Run with {number_of_threads} threads up to {UP_TO}");
+    let count = count_primes(UP_TO, number_of_threads);
+    println!("Found {} prime numbers up to {}", count, UP_TO);
 }

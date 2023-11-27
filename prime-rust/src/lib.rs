@@ -7,7 +7,7 @@ pub fn is_prime(n: u32) -> bool {
     true
 }
 
-pub fn count_prime(up_to: u32, number_of_threads: usize) -> u32 {
+pub fn count_primes(up_to: u32, number_of_threads: usize) -> u32 {
     let mut number_of_prime_numbers = 0;
     let mut current_number = 2;
 
@@ -48,22 +48,22 @@ mod tests {
 
     #[test]
     fn test_count_prime_one_thread() {
-        assert_eq!(PRIMES, count_prime(UP_TO, 1));
+        assert_eq!(PRIMES, count_primes(UP_TO, 1));
     }
 
     #[test]
     fn test_count_prime_two_threads() {
-        assert_eq!(PRIMES, count_prime(UP_TO, 2));
+        assert_eq!(PRIMES, count_primes(UP_TO, 2));
     }
 
     #[test]
     fn test_count_prime_four_threads() {
-        assert_eq!(PRIMES, count_prime(UP_TO, 4));
+        assert_eq!(PRIMES, count_primes(UP_TO, 4));
     }
 
     #[test]
     fn test_count_prime_available_parallelism_threads() {
         let number_of_threads = std::thread::available_parallelism().unwrap().get();
-        assert_eq!(PRIMES, count_prime(UP_TO, number_of_threads));
+        assert_eq!(PRIMES, count_primes(UP_TO, number_of_threads));
     }
 }
