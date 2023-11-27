@@ -6,5 +6,5 @@ if (args.Length > 0) {
 }
 
 Console.WriteLine($"Run with {numberOfThreads} threads up to {UP_TO}");
-var count = Prime.CountPrimes(UP_TO, numberOfThreads);
+var count = Prime.Prime.CountPrimes(UP_TO, numberOfThreads);
 Console.WriteLine($"Found {count} prime numbers up to {UP_TO}");

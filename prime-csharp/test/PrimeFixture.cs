@@ -1,6 +1,18 @@
+namespace Prime;
+
 [TestFixture]
 public class PrimeFixture
 {
+
+    [Test]
+    public void IsPrime()
+    {
+        HashSet<uint> primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67];
+        for (var i = 2u; i < 70u; i++)
+        {
+            Assert.That(Prime.IsPrime(i), Is.EqualTo(primes.Contains(i)));
+        }
+    }
 
 
     const uint UP_TO = 200000;

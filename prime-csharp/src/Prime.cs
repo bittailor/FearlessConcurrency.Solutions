@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+
+namespace Prime;
 
 public static class Prime {
     
