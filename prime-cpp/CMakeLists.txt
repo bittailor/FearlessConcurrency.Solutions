@@ -12,6 +12,8 @@ if(NOT MSVC)
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+find_package( Threads REQUIRED )
+
 include(FetchContent)
 FetchContent_Declare(
   googletest
@@ -35,6 +37,7 @@ add_executable(
 target_link_libraries(
   prime
   prime_lib
+  ${CMAKE_THREAD_LIBS_INIT}
 )
 
 enable_testing()
@@ -48,6 +51,7 @@ target_link_libraries(
   prime_test
   prime_lib
   GTest::gtest_main
+  ${CMAKE_THREAD_LIBS_INIT}
 )
 
 include(GoogleTest)
