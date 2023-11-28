@@ -1,3 +1,5 @@
+use std::sync::atomic::{AtomicU32, Ordering};
+
 pub fn is_prime(n: u32) -> bool {
     for i in 2..=(n / 2) {
         if n % i == 0 {
@@ -8,31 +10,24 @@ pub fn is_prime(n: u32) -> bool {
 }
 
 pub fn count_primes(up_to: u32, number_of_threads: usize) -> u32 {
-    let number_of_prime_numbers = std::sync::Mutex::new(0u32);
-    let current_number = std::sync::Mutex::new(2u32);
+    let number_of_prime_numbers = AtomicU32::new(0);
+    let current_number = AtomicU32::new(2);
 
     std::thread::scope(|scope| {
         for _t in 0..number_of_threads {
             scope.spawn(|| loop {
-                let local_current_number = {
-                    let mut current_number = current_number.lock().unwrap();
-                    let local_current_number = *current_number;
-                    *current_number += 1;
-                    local_current_number
-                };
+                let local_current_number = current_number.fetch_add(1, Ordering::Relaxed);
                 if local_current_number >= up_to {
                     break;
                 }
                 if is_prime(local_current_number) {
-                    let mut number_of_prime_numbers = number_of_prime_numbers.lock().unwrap();
-                    *number_of_prime_numbers = *number_of_prime_numbers + 1;
+                    number_of_prime_numbers.fetch_add(1, Ordering::Relaxed);
                 }
             });
         }
     });
 
-    let result = *number_of_prime_numbers.lock().unwrap();
-    result
+    number_of_prime_numbers.load(Ordering::Relaxed)
 }
 
 #[cfg(test)]

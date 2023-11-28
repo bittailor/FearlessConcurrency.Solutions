@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <iostream>
-#include <mutex>
+#include <atomic>
 #include <string>
 #include <thread>
 #include <vector>
@@ -28,29 +28,22 @@ uint32_t count_primes_no_threads(uint32_t upTo) {
 
 uint32_t count_primes(uint32_t upTo, uint32_t numberOfThreads) {
     std::vector<std::thread> threads;
-    uint32_t numberOfPrimeNumbers = 0;
-    std::mutex numberOfPrimeNumbersMutex;
-    uint32_t currentNumber = 2;
-    std::mutex currentNumberMutex;
-
+    std::atomic<std::uint32_t> numberOfPrimeNumbers{0};
+    std::atomic<std::uint32_t> currentNumber{2};
+    
     for (uint32_t t = 0; t < numberOfThreads; t++) {
         threads.emplace_back([&,upTo]() {
             while(true){
-                uint32_t localCurrentNumber = [&](){
-                    std::lock_guard<std::mutex> lock{currentNumberMutex};
-                    return currentNumber++;
-                }();
+                uint32_t localCurrentNumber = currentNumber.fetch_add(1, std::memory_order_relaxed);
                 if(localCurrentNumber >= upTo) {
                     break;
                 }
                 if (is_prime(localCurrentNumber)){
-                    std::lock_guard<std::mutex> lock{numberOfPrimeNumbersMutex};
-                    ++numberOfPrimeNumbers;
+                    numberOfPrimeNumbers.fetch_add(1, std::memory_order_relaxed); 
                 }   
             }
         });    
     }
     std::for_each(threads.begin(), threads.end(), [](auto& t){t.join();});
-    std::lock_guard<std::mutex> lock{numberOfPrimeNumbersMutex};
     return numberOfPrimeNumbers;
 }

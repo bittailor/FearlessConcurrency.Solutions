@@ -2,9 +2,9 @@ name: C++
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "atomic" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "atomic" ]
 
 jobs:
   build:

@@ -1,6 +1,7 @@
 package prime.kotlin
 
 import kotlin.concurrent.thread
+import java.util.concurrent.atomic.AtomicInteger
 
 fun isPrime(n: UInt): Boolean {
     val end = (n / 2u)
@@ -14,35 +15,26 @@ fun isPrime(n: UInt): Boolean {
 
 fun countPrimes(upTo: UInt, numberOfThreads: UInt): UInt {
     var threads = mutableListOf<Thread>()
-    var numberOfPrimeNumbers = 0u
-    val numberOfPrimeNumbersLock = Any()
-    var currentNumber = 2u
-    val currentNumberLock = Any()
-
-    for (t in 0u..<numberOfThreads) {
+    var numberOfPrimeNumbers = AtomicInteger(0)
+    var currentNumber =  AtomicInteger(2)
+    
+    for (t in 0u..< numberOfThreads) {
         threads.add(thread {
             while(true){
-                var localCurrentNumber : UInt
-                synchronized(currentNumberLock) {
-                    localCurrentNumber = currentNumber++    
-                }
+                var localCurrentNumber = currentNumber.getAndAdd(1).toUInt();
                 if(localCurrentNumber >= upTo) {
                     break;
                 }
-                if (isPrime(localCurrentNumber)) {
-                    synchronized(numberOfPrimeNumbersLock) {
-                        ++numberOfPrimeNumbers
-                    }
+                if (isPrime(localCurrentNumber.toUInt())) {
+                    numberOfPrimeNumbers.incrementAndGet()
                 }    
             }
-        });   
+        });    
     }    
 
     for (t in threads) {
         t.join();
     }
 
-    synchronized(numberOfPrimeNumbersLock) {
-        return numberOfPrimeNumbers
-    }
+    return numberOfPrimeNumbers.get().toUInt()
 }
