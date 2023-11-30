@@ -1,0 +1,117 @@
+name: CI pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build_cpp:
+    name: C++
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set reusable strings
+      id: strings
+      shell: bash
+      run: |
+        echo "build-output-dir=${{ github.workspace }}/prime-cpp/build" >> "$GITHUB_OUTPUT"
+
+    - name: Configure CMake
+      working-directory: ./prime-cpp
+      run: >
+        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        -DCMAKE_BUILD_TYPE=Release
+        -S ${{ github.workspace }}/prime-cpp
+
+    - name: Build
+      working-directory: ./prime-cpp
+      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config Release
+
+    - name: Run tests
+      working-directory: ${{ steps.strings.outputs.build-output-dir }}
+      run: ctest --build-config Release
+
+  build_csharp:
+    name: C#
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 7.0.x
+    - name: Restore dependencies
+      working-directory: ./prime-csharp
+      run: dotnet restore
+    - name: Build
+      working-directory: ./prime-csharp
+      run: dotnet build --no-restore
+    - name: Run tests
+      working-directory: ./prime-csharp
+      run: dotnet test --no-build --verbosity normal
+
+  build_kotlin:
+    name: Kotlin
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+
+    - name: Grant execute permission for gradlew
+      working-directory: ./prime-kotlin
+      run: chmod +x gradlew
+    - name: Build
+      working-directory: ./prime-kotlin
+      run: ./gradlew app:jar app:testClasses
+    - name: Run tests
+      working-directory: ./prime-kotlin
+      run: ./gradlew build
+
+  build_rust:
+    name: Rust
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build
+      working-directory: ./prime-rust
+      run: cargo build --verbose
+    - name: Run tests
+      working-directory: ./prime-rust
+      run: cargo test --verbose
